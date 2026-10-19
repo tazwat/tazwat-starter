@@ -37,7 +37,7 @@
 #   merges it with `-s ours` (no tree change) so later merges have a proper base.
 #
 # Requirements: clean working tree, a `template` remote
-#   (git remote add template https://github.com/KotlinFoundation/kmp-contest-starter-kit.git),
+#   (git remote add template https://github.com/tazwat/tazwat-starter.git),
 #   and the bootstrap commit must already contain scripts/refactor_package.sh.
 #
 # On merge conflicts the script stops with the merge in progress — resolve and commit
@@ -83,7 +83,7 @@ CUR_BRANCH="$(git branch --show-current)"
 [[ -n "$CUR_BRANCH" ]] || fail "detached HEAD — check out the branch you want to sync into."
 
 git remote get-url "$REMOTE" >/dev/null 2>&1 || fail "no '$REMOTE' remote. Add it first:
-  git remote add $REMOTE https://github.com/KotlinFoundation/kmp-contest-starter-kit.git"
+  git remote add $REMOTE https://github.com/tazwat/tazwat-starter.git"
 
 echo "Fetching $REMOTE…"
 git fetch "$REMOTE" "$BRANCH"

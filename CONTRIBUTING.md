@@ -38,7 +38,7 @@ Contributions to Koko follow the standard Fork and Pull Request workflow.
    git commit -m "docs: update contributing workflow for public repo"
    ```
 
-5. **Push and Open a Pull Request**: Push your branch to your forked repository and open a Pull Request (PR) against the `main` branch of `KotlinFoundation/kmp-contest-starter-kit`.
+5. **Push and Open a Pull Request**: Push your branch to your forked repository and open a Pull Request (PR) against the `main` branch of `tazwat/tazwat-starter`.
    ```bash
    git push -u origin docs/fix-contributing-guide
    ```

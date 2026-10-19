@@ -31,7 +31,7 @@ you need to resolve conflicts well.
 ## 1. One-time setup — **Agent Action**
 
 ```bash
-git remote add template https://github.com/KotlinFoundation/kmp-contest-starter-kit.git
+git remote add template https://github.com/tazwat/tazwat-starter.git
 ```
 
 ## 2. Run the sync — **Agent Action**

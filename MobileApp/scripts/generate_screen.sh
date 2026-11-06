@@ -18,6 +18,13 @@
 
 set -e
 
+# In-place sed that works on both macOS (BSD sed needs `-i ''`) and Linux (GNU sed takes a bare `-i`).
+if sed --version >/dev/null 2>&1; then
+  SED_INPLACE=(-i)
+else
+  SED_INPLACE=(-i '')
+fi
+
 SCREEN_NAME=$1
 
 if [ -z "$SCREEN_NAME" ]; then
@@ -39,7 +46,7 @@ insert_import() {
     awk -F: -v new="import $fqn" '{ text = substr($0, index($0, ":") + 1); if (text > new) { print $1; exit } }')
 
   if [ -n "$target_line" ]; then
-    sed -i '' "${target_line}i\\
+    sed "${SED_INPLACE[@]}" "${target_line}i\\
 import $fqn
 " "$file"
     return 0
@@ -48,14 +55,14 @@ import $fqn
   # Sorts last: append after the final import.
   last_import=$(grep -n '^import ' "$file" | tail -1 | cut -d: -f1)
   if [ -n "$last_import" ]; then
-    sed -i '' "${last_import}a\\
+    sed "${SED_INPLACE[@]}" "${last_import}a\\
 import $fqn
 " "$file"
     return 0
   fi
 
   # No imports at all: open a block below `package`, keeping the blank line between them.
-  sed -i '' "/^package /a\\
+  sed "${SED_INPLACE[@]}" "/^package /a\\
 \\
 import $fqn
 " "$file"
@@ -200,14 +207,14 @@ if [ -f "$ROUTES_FILE" ]; then
     echo "⚠️ Marker '// Add new routes below' missing in Routes.kt — add it before re-running."
   else
     # Insert route declaration in reverse so the final order reads top-to-bottom.
-    sed -i '' "/\/\/ Add new routes below/i\\
+    sed "${SED_INPLACE[@]}" "/\/\/ Add new routes below/i\\
 data object $ROUTE_CLASS : ScreenRoute\\
 
 " "$ROUTES_FILE"
-    sed -i '' "/data object $ROUTE_CLASS/i\\
+    sed "${SED_INPLACE[@]}" "/data object $ROUTE_CLASS/i\\
 @SerialName(\"$SCREEN_BASE\")
 " "$ROUTES_FILE"
-    sed -i '' "/@SerialName(\"$SCREEN_BASE\")/i\\
+    sed "${SED_INPLACE[@]}" "/@SerialName(\"$SCREEN_BASE\")/i\\
 @Serializable
 " "$ROUTES_FILE"
     echo "Updated: $ROUTES_FILE"
@@ -232,7 +239,7 @@ if [ -f "$APPNAV_FILE" ]; then
   else
     # One insert for the whole block: every `i\` anchors on the marker, so splitting this into
     # several seds would stack the lines up in reverse order.
-    sed -i '' "/\/\/ Add new screen entries below/i\\
+    sed "${SED_INPLACE[@]}" "/\/\/ Add new screen entries below/i\\
     entry<$ROUTE_CLASS> {\\
         val viewModel = koinViewModel<$VIEWMODEL_CLASS>()\\
         $SCREEN_CLASS(viewModel = viewModel)\\
@@ -256,7 +263,7 @@ if [ -f "$DI_FILE" ]; then
   elif ! grep -q "// Add new view models below" "$DI_FILE"; then
     echo "⚠️ Marker '// Add new view models below' missing in Di.kt — add it before re-running."
   else
-    sed -i '' "/\/\/ Add new view models below/i\\
+    sed "${SED_INPLACE[@]}" "/\/\/ Add new view models below/i\\
     viewModelOf(::$VIEWMODEL_CLASS)
 " "$DI_FILE"
     echo "Updated: $DI_FILE"

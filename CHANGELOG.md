@@ -12,6 +12,15 @@ Entry format — one bullet per merged PR, tagged by scope:
 Entries start with the first template change after the sync tooling landed — group them under a
 `## <year>-<month>-<date>` heading, newest first.
 
+## 2026-11-06
+
+- `[app]` **Scaffold scripts work on Linux**: `generate_screen.sh` and `make_local.sh` called
+  `sed -i ''`, which is macOS (BSD) syntax. GNU sed reads the `''` as the script, so on Linux the
+  scripts created the new files but silently skipped wiring them into `Routes.kt`,
+  `AppNavigation.kt`, `Di.kt`, `AppDatabase.kt` and `DatabaseModule.kt`. Both scripts now detect
+  the sed flavour once and use the right in-place flag.
+  **Manual:** none.
+
 ## 2026-09-04
 
 - `[app]` **WorkManager survives R8** (#59): release builds crashed at launch with

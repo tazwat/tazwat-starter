@@ -16,6 +16,13 @@
 
 set -e
 
+# In-place sed that works on both macOS (BSD sed needs `-i ''`) and Linux (GNU sed takes a bare `-i`).
+if sed --version >/dev/null 2>&1; then
+  SED_INPLACE=(-i)
+else
+  SED_INPLACE=(-i '')
+fi
+
 MODEL_NAME=$1
 
 if [ -z "$MODEL_NAME" ]; then
@@ -143,7 +150,7 @@ else
     echo "AppDatabase already references $ENTITY_NAME — skipping."
   else
     # Insert entity into the @Database(entities = [...]) list.
-    sed -i '' "s/entities = \[/entities = \[$ENTITY_NAME::class, /" "$APP_DB_FILE"
+    sed "${SED_INPLACE[@]}" "s/entities = \[/entities = \[$ENTITY_NAME::class, /" "$APP_DB_FILE"
 
     # Insert entity + DAO imports inside the existing import block (before the
     # first `import` line) so they stay grouped and sortable by spotless.
@@ -154,7 +161,7 @@ else
     ' "$APP_DB_FILE" > "$APP_DB_FILE.tmp" && mv "$APP_DB_FILE.tmp" "$APP_DB_FILE"
 
     # Insert abstract DAO accessor right above the marker.
-    sed -i '' "/\/\/ Add new DAOs above — make_local.sh inserts here./i\\
+    sed "${SED_INPLACE[@]}" "/\/\/ Add new DAOs above — make_local.sh inserts here./i\\
     abstract fun $DAO_ACCESSOR(): $DAO_NAME
 " "$APP_DB_FILE"
 
@@ -171,7 +178,7 @@ else
   if grep -q "\.$DAO_ACCESSOR()" "$DB_MODULE_FILE"; then
     echo "databaseModule already registers $DAO_ACCESSOR — skipping."
   else
-    sed -i '' "/\/\/ Add new DAO accessors above — make_local.sh inserts here./i\\
+    sed "${SED_INPLACE[@]}" "/\/\/ Add new DAO accessors above — make_local.sh inserts here./i\\
     single { get<AppDatabase>().$DAO_ACCESSOR() }
 " "$DB_MODULE_FILE"
     echo "Updated: $DB_MODULE_FILE"

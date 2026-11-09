@@ -33,6 +33,7 @@
 - [ ] **[User]** *(opt-in)* Set `AUTH_SOCIAL_LOGIN_ENABLED = true`; enable Google + Apple providers in Firebase Auth (re-download both config files)
 - [ ] **[User]** *(opt-in)* Copy Web client ID → `GOOGLE_WEB_CLIENT_ID` in `local.properties`
 - [ ] **[User]** *(opt-in)* Fill iOS `Info.plist` client IDs + add "Sign In with Apple" capability in Xcode (+ Apple `.p8`/Service ID for Android web flow)
+- [ ] **[Agent]** *(opt-in)* After step 5: `enable-restore-credentials` (Play Zero-Tap Sign-In, required from April 2027)
 
 ## 4. Subscriptions — OPTIONAL commercial step (opt-in) — `setup-subscriptions`
 - [ ] **[Agent]** Ask: "are you setting up subscriptions/monetization now?" (skip if no — the app still works)

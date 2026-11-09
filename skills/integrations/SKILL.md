@@ -76,6 +76,9 @@ defaults to `false`, so the Google/Apple buttons are hidden and `GOOGLE_WEB_CLIE
   (`GIDServerClientID` / `GIDClientID` / `CFBundleURLSchemes`); add the **Sign In with Apple**
   capability in Xcode; and for Apple-on-Android complete the Apple Developer `.p8` + Service ID web
   flow. The `enable-auth` skill lists each of these. **Stop and confirm each.**
+- **Agent Action** (only if they said yes) — Tell the developer that Google Play requires
+  **Zero-Tap Sign-In** for apps with sign-in from April 2027, and run `enable-restore-credentials` once the
+  Cloud Functions are deployed (step 5). It must be done before the first release.
 
 ### 4. Subscriptions — OPTIONAL commercial step (opt-in) — `setup-subscriptions`
 Not required for a working app — skip it unless the developer is setting up monetization now. Full

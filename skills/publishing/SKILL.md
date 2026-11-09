@@ -45,6 +45,9 @@ Every `⚠️` must be resolved before release. It covers:
 - **Store listings** created + metadata/graphics/data-safety/content-rating filled: App Store Connect
   (`setup-appstore-connect`) and Google Play Console (`setup-google-play`), steps 7–8.
 - **Store screenshots** generated (`capture-app-screens`, step 5).
+- **Zero-Tap Sign-In** (only if `AUTH_SOCIAL_LOGIN_ENABLED = true`; Google Play requires it from April 2027):
+  `./scripts/restore_credentials.sh check` is all ✅ and the two-phone migration test passed
+  (`enable-restore-credentials`).
 - `run-quality-gates` passes.
 
 The published docs mirror this: **`Documentation/docs/production/pre-publishing-checklist.md`**. If any item
@@ -157,6 +160,8 @@ Verify AppConfiguration config: `./scripts/check_env.sh --phase publishing`.
   phone screenshots), the **Data safety** questionnaire, **content rating**, set up an
   **internal testing** track, and create the Play **service account** JSON for CI. **Stop and
   confirm.**
+- **Agent Action** (apps with social sign-in) — App integrity now shows the **app signing key**: add its
+  SHA-256 to `RESTORE_ANDROID_ORIGINS` and redeploy the functions (`enable-restore-credentials`, step 3).
 
 ### 9. Build + submit the first release — `publish-release`
 - **Agent Action** — Read the `publish-release` skill. Build the signed Android AAB

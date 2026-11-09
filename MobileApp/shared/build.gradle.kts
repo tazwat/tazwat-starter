@@ -163,6 +163,9 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.google.admob)
             implementation(libs.android.inappreview)
+            // Restore Credentials (Zero-Tap Sign-In): RestoreCredentials.android.kt
+            implementation(libs.androidx.credentials)
+            implementation(libs.androidx.credentials.play.services)
         }
 
         iosMain.dependencies {

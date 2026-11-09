@@ -1,6 +1,7 @@
 const {initializeApp} = require("firebase-admin/app");
 const replicateFunctions = require("./api/replicate");
 const openAiFunctions = require("./api/openai");
+const restoreKeyFunctions = require("./api/restoreKeys");
 
 
 
@@ -35,4 +36,13 @@ if (enabledProviders.includes("replicate")) {
 if (enabledProviders.includes("openai")) {
   exports.openAiCreateTextCompletion = openAiFunctions.createTextCompletion;
   exports.openAiCreateImage = openAiFunctions.createImage;
+}
+
+// Restore keys (Google Play Zero-Tap Sign-In): only when RESTORE_RP_ID is set in functions/.env.
+// Guide: skills/enable-restore-credentials/SKILL.md
+if (process.env.RESTORE_RP_ID) {
+  exports.restoreKeyRegisterOptions = restoreKeyFunctions.registerOptions;
+  exports.restoreKeyRegister = restoreKeyFunctions.register;
+  exports.restoreKeySignInOptions = restoreKeyFunctions.signInOptions;
+  exports.restoreKeySignIn = restoreKeyFunctions.signIn;
 }

@@ -89,6 +89,7 @@ no-Firebase AI path, so Firebase / Adapty / store accounts wait until the phase 
 | [configure-environment](configure-environment/SKILL.md) | Figuring out where a config value / API key lives (local.properties, gradle.properties, AppConfiguration.kt, Constants.kt) |
 | [setup-firebase](setup-firebase/SKILL.md) | Connecting the app to Firebase (project, apps, anonymous auth) — and the wasmJs question that must be asked before any Firebase client SDK enters shared code |
 | [enable-auth](enable-auth/SKILL.md) | Adding Google / Apple social sign-in |
+| [enable-restore-credentials](enable-restore-credentials/SKILL.md) | Signing Google/Apple users back in automatically on a new Android phone (Google Play Zero-Tap Sign-In, required from April 2027) |
 | [integrate-web-proxy](integrate-web-proxy/SKILL.md) | Deploying the Cloud Functions AI proxy and calling it securely |
 | [sync-data-firebase](sync-data-firebase/SKILL.md) | Putting data in Firestore / syncing across devices / making state server-authoritative (asks the wasmJs question first) |
 

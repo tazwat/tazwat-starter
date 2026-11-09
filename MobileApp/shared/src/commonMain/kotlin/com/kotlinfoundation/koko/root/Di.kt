@@ -7,6 +7,7 @@ import com.kotlinfoundation.koko.data.repository.GenerationRepository
 import com.kotlinfoundation.koko.data.repository.SubscriptionRepository
 import com.kotlinfoundation.koko.data.repository.UserRepository
 import com.kotlinfoundation.koko.data.source.ai.ReplicateGenerationProvider
+import com.kotlinfoundation.koko.data.source.auth.RestoreCredentials
 import com.kotlinfoundation.koko.data.source.preferences.PreferencesDataStoreProvider
 import com.kotlinfoundation.koko.data.source.preferences.UserPreferences
 import com.kotlinfoundation.koko.data.source.preferences.UserPreferencesImpl
@@ -115,7 +116,8 @@ private val dataModule = module {
     } bind SubscriptionProviderUi::class
 
     // Repositories
-    single { UserRepository(get(), get(), get(), get()) }
+    // RestoreCredentials is bound on Android only (Platform.android.kt).
+    single { UserRepository(get(), get(), get(), get(), getOrNull() ?: RestoreCredentials.None) }
     single { SubscriptionRepository(get(), get(), get(), get()) }
     single { GenerationRepository(get(), get(), get(), get(), get(), get(), get()) }
 

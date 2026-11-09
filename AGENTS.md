@@ -440,7 +440,7 @@ Two layers:
 
 **Task skills** (grouped by phase):
 - **P1** `new-app`, `build-features`, `run-the-app`, `refactor-package`, `new-screen`, `new-local-model`, `add-api-service`, `save-preferences`, `add-permission`, `new-module`
-- **P2** `configure-environment`, `setup-firebase`, `enable-auth`, `integrate-web-proxy`, `sync-data-firebase`
+- **P2** `configure-environment`, `setup-firebase`, `enable-auth`, `enable-restore-credentials`, `integrate-web-proxy`, `sync-data-firebase`
 - **P3** `generate-app-icons`, `bump-version`, `setup-signing`, `capture-app-screens`, `setup-appstore-connect`, `setup-google-play`, `publish-release`
 - **P4** `design-paywall`, `setup-subscriptions`, `enable-credits`, `enable-ads`
 - **P5** `setup-analytics`, `enable-notifications`, `design-onboarding`, `add-virality-loop`

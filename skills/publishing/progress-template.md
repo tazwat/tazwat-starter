@@ -58,6 +58,7 @@
 - [ ] **[User]** Data safety questionnaire + content rating
 - [ ] **[User]** Internal testing track set up
 - [ ] **[User]** Play service-account JSON created for CI
+- [ ] **[Agent]** *(social sign-in)* App signing key SHA-256 added to `RESTORE_ANDROID_ORIGINS`, functions redeployed (`enable-restore-credentials`)
 
 ## 9. Build + submit first release — `publish-release`
 - [ ] **[Agent]** Build signed AAB (`:androidApp:bundleRelease`); iOS archive / Fastlane `appstore_release`

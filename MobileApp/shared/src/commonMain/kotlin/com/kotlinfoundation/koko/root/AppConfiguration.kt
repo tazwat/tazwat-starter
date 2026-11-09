@@ -57,6 +57,11 @@ object AppConfiguration {
     // extra config: GOOGLE_WEB_CLIENT_ID, iOS Info.plist client IDs, Sign In with Apple capability).
     const val AUTH_SOCIAL_LOGIN_ENABLED = false
 
+    // Google Play "Zero-Tap Sign-In" (required from April 2027 for apps with sign-in): signs Google/Apple
+    // users back in automatically on a new Android phone. Needs the restore-key Cloud Functions deployed
+    // and CLOUD_FUNCTIONS_URL set — see the enable-restore-credentials skill. Off with social login off.
+    const val RESTORE_CREDENTIALS_ENABLED = AUTH_SOCIAL_LOGIN_ENABLED
+
     /**
      * Whether the app has any **premium (paid/gated) features**.
      *

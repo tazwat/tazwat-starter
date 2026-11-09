@@ -5,6 +5,8 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.kotlinfoundation.koko.common.BuildConfig
+import com.kotlinfoundation.koko.data.source.auth.RestoreCredentials
+import com.kotlinfoundation.koko.data.source.auth.RestoreCredentialsImpl
 import com.kotlinfoundation.koko.data.source.featureflag.FeatureFlagManager
 import com.kotlinfoundation.koko.data.source.featureflag.FeatureFlagManagerImpl
 import com.kotlinfoundation.koko.data.source.local.DatabaseProvider
@@ -24,6 +26,7 @@ import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfig
 import com.mmk.kmpnotifier.push.firebase.FirebasePush
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -51,6 +54,7 @@ internal actual val platformModule: Module = module {
     } bind FeatureFlagManager::class
     single { FirebaseAnalyticsImpl(firebaseAnalytics = Firebase.analytics) } bind Analytics::class
     singleOf(::AdsManagerImpl) bind AdsManager::class
+    single<RestoreCredentials> { RestoreCredentialsImpl(androidContext()) }
 }
 
 internal actual fun onApplicationStartPlatformSpecific() {

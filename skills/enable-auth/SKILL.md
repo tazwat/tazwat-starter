@@ -93,3 +93,6 @@ launch). On `SignInScreen`, Google and Apple buttons should appear and complete 
 ## Next
 
 Deploy the AI web proxy and make an authenticated remote call → `integrate-web-proxy`.
+
+With social sign-in on, Google Play requires automatic sign-in on a new Android phone from April 2027 →
+`enable-restore-credentials` (needs the Cloud Functions deployed; finish it before the first release).

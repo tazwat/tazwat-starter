@@ -11,7 +11,11 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="Koko"
-        android:theme="@android:style/Theme.Material.NoActionBar">
+        android:theme="@android:style/Theme.Material.NoActionBar"
+        android:backupAgent="com.kotlinfoundation.koko.data.source.auth.RestoreBackupAgent"
+        android:fullBackupOnly="true">
+        <!-- backupAgent: signs the user back in when Android restores the app on a new phone
+             (Google Play Zero-Tap Sign-In). fullBackupOnly keeps Android's automatic backup as it was. -->
         <activity
             android:name=".AppActivity"
             android:theme="@style/Theme.App.Starting"

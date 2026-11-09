@@ -16,7 +16,6 @@ const Validation = require("../utils/validation");
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 const MAX_KEYS_PER_USER = 5; // one per device; the oldest goes when a 6th device registers
-const KEY_TTL_MS = 365 * 24 * 60 * 60 * 1000; // unused for a year = refused and deleted
 
 class HttpError extends Error {
   constructor(status, message) {
@@ -142,10 +141,6 @@ async function signIn({ response }, deps) {
   const id = response && response.id;
   const key = id ? await deps.store.getKey(id) : null;
   if (!key) throw new HttpError(404, "Unknown restore key.");
-  if (deps.now() - key.lastUsedAt > KEY_TTL_MS) {
-    await deps.store.deleteKey(id);
-    throw new HttpError(404, "Restore key expired.");
-  }
 
   const { rpID, origins } = deps.config;
   const result = await verify(() => deps.webauthn.verifyAuthenticationResponse({
@@ -205,5 +200,5 @@ module.exports = {
   signInOptions: endpoint(false, (req, deps) => signInOptions(deps)),
   signIn: endpoint(false, (req, deps) => signIn({ response: body(req) }, deps)),
   // for tests
-  _internal: { registerOptions, register, signInOptions, signIn, readConfig, HttpError, MAX_KEYS_PER_USER, CHALLENGE_TTL_MS, KEY_TTL_MS },
+  _internal: { registerOptions, register, signInOptions, signIn, readConfig, HttpError, MAX_KEYS_PER_USER, CHALLENGE_TTL_MS },
 };

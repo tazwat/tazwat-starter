@@ -12,7 +12,11 @@ interface RestoreCredentials {
     /** Creates the restore key for the signed-in, non-guest user (once per user and device). */
     suspend fun save()
 
-    /** Signs in with this device's restore key, if there is one. True when a user got signed in. */
+    /**
+     * Signs in with the restore key that came with this phone, replacing a guest account. Checks once per
+     * phone (again after a network error); returns false at once when a non-guest user is signed in.
+     * True when a user got signed in.
+     */
     suspend fun restore(): Boolean
 
     /** Deletes this device's restore key: call on sign-out and account deletion. */

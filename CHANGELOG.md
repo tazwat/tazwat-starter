@@ -16,9 +16,9 @@ Entries start with the first template change after the sync tooling landed — g
 
 - `[app]` **Zero-Tap Sign-In (Android Restore Credentials)**: Google Play requires apps with sign-in to sign
   the user back in automatically on a new Android phone from April 2027. After a Google/Apple sign-in the
-  app now saves a hidden restore key; on a new phone it signs the user in with it before falling back to a
-  guest account, both at first launch and from a new `RestoreBackupAgent` that runs when Android restores
-  the app. Logout deletes the key. Server half: four `restoreKey*` Cloud Functions
+  app now saves a hidden restore key; on a new phone it signs the user in with it (replacing the first-launch
+  guest account), from a new `RestoreBackupAgent` that runs when Android restores the app and again at
+  startup as a fallback. Logout deletes the key. Server half: four `restoreKey*` Cloud Functions
   (`Web/functions/api/restoreKeys.js`, tested with `npm test`) that check the key and return a Firebase
   custom token. They're only deployed when `RESTORE_RP_ID` is set, and the app only uses them when
   `RESTORE_CREDENTIALS_ENABLED` (defaults to `AUTH_SOCIAL_LOGIN_ENABLED`) and `CLOUD_FUNCTIONS_URL` are set,

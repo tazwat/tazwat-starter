@@ -27,7 +27,7 @@ import kotlin.time.ExperimentalTime
 /**
  * Owns the authenticated user. Exposes [currentUser] as a hot flow that merges the auth state from
  * [KMPAuth] with premium status from [SubscriptionRepository], and signs guests in anonymously on
- * first launch — unless [RestoreCredentials] signs a returning user back in (new Android phone).
+ * first launch, then lets [RestoreCredentials] swap in a returning user's account (new Android phone).
  * Emits `Result.failure(UnAuthorizedException)` when signed out.
  *
  * Auth is handled entirely by [KMPAuth] (Firebase backend) — cross-platform, including desktop and web.
@@ -68,16 +68,17 @@ class UserRepository(
             startupLock.withLock {
                 val isFirstTimeUser = userPreferences.getBoolean(KEY_FIRST_TIME_USER, true)
                 if (KMPAuth.currentUser() == null && isFirstTimeUser) {
-                    // A first launch may be a new phone: sign the user back in before making a guest.
-                    if (restoreCredentials.restore()) {
-                        AppLogger.d("Signed in with restore key")
-                    } else {
-                        KMPAuth.signInAnonymously().getOrThrow()
-                        AppLogger.d("Signed in anonymously")
-                    }
+                    KMPAuth.signInAnonymously().getOrThrow()
                     userPreferences.putBoolean(KEY_FIRST_TIME_USER, false)
+                    AppLogger.d("Signed in anonymously")
+                }
+                // New phone: replaces the guest with the user's account (it asks the server once per phone,
+                // so it runs after the guest sign-in to keep first launch fast). Otherwise make sure the
+                // signed-in user has a key: users from before this update get theirs here.
+                if (restoreCredentials.restore()) {
+                    AppLogger.d("Signed in with restore key")
                 } else {
-                    restoreCredentials.save() // users signed in before this update get their key here
+                    restoreCredentials.save()
                 }
             }
             Result.success(Unit)

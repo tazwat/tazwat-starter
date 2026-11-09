@@ -19,9 +19,11 @@ nothing to restore and skip this skill. Android only; iOS is untouched.
 
 1. After a Google/Apple sign-in, the app creates a hidden **restore key** (a WebAuthn key, like a passkey
    the user never sees). Google backs it up with the phone.
-2. On a new phone, before making a guest account, the app asks Android for that key and sends it to the
-   `restoreKeySignIn` Cloud Function, which checks it and returns a **Firebase custom token**. The app
-   signs in with it: the user is back without a tap.
+2. On a new phone, the app asks Android for that key and sends it to the `restoreKeySignIn` Cloud
+   Function, which checks it and returns a **Firebase custom token**. The app signs in with it, replacing
+   the guest account made at first launch: the user is back without a tap. This runs once per phone, decided
+   by a marker in `noBackupFilesDir` (never backed up, so it's missing on a new phone even when Android
+   copied the app's settings), and again after a network error.
 3. Sign-out and account deletion delete the key on the phone.
 
 | Piece | File |
@@ -29,7 +31,7 @@ nothing to restore and skip this skill. Android only; iOS is untouched.
 | Shared interface (no-op off Android) | `MobileApp/shared/src/commonMain/.../data/source/auth/RestoreCredentials.kt` |
 | Android implementation | `MobileApp/shared/src/androidMain/.../data/source/auth/RestoreCredentialsImpl.kt` |
 | Background restore (runs when Android restores the app, before first launch) | `.../data/source/auth/RestoreBackupAgent.kt` + `android:backupAgent` / `android:fullBackupOnly` in `androidApp/src/main/AndroidManifest.xml` |
-| Calls: first launch (before guest sign-in), after sign-in, at startup for existing users, on logout | `UserRepository` (`signInAnonymouslyIfNecessary`, `onSuccessfulOauthSign`, `logOut`) |
+| Calls: at startup after the guest sign-in (restore, else save the key), after sign-in, on logout | `UserRepository` (`signInAnonymouslyIfNecessary`, `onSuccessfulOauthSign`, `logOut`) |
 | Flag | `AppConfiguration.RESTORE_CREDENTIALS_ENABLED` (defaults to `AUTH_SOCIAL_LOGIN_ENABLED`) |
 | Server: 4 HTTP functions + tests | `Web/functions/api/restoreKeys.js`, `Web/functions/test/restoreKeys.test.js` |
 | Helper | `MobileApp/scripts/restore_credentials.sh` (`origin`, `check`) |
@@ -37,8 +39,8 @@ nothing to restore and skip this skill. Android only; iOS is untouched.
 The functions are `restoreKeyRegisterOptions`, `restoreKeyRegister` (both need the Firebase ID token),
 `restoreKeySignInOptions`, `restoreKeySignIn` (no token: the phone isn't signed in yet). They store keys in
 Firestore `restoreKeys/{keyId}` and one-time challenges in `restoreChallenges/{id}` (5-minute expiry).
-At most 5 keys per user (oldest dropped); a key unused for a year, or whose account was deleted, is refused
-and removed.
+At most 5 keys per user (oldest dropped). Keys don't expire (people keep phones for years); a key whose
+account was deleted is refused and removed.
 
 ## 0. Older app built from the template — Agent Action
 
@@ -48,9 +50,9 @@ Skip if the app already has `RestoreCredentialsImpl.kt`.
 2. If the app changed `UserRepository`, `Di.kt`, `Platform.android.kt`, `AppConfiguration.kt` or the
    manifest, resolve the conflicts so that:
    - `UserRepository` takes `restoreCredentials: RestoreCredentials = RestoreCredentials.None` and
-     - in `signInAnonymouslyIfNecessary`, when there's no user on a first launch, calls
-       `restoreCredentials.restore()` **before** `signInAnonymously()` (skip the guest when it returns true),
-       and otherwise calls `restoreCredentials.save()`;
+     - in `signInAnonymouslyIfNecessary`, **after** the first-launch guest sign-in and on every start,
+       calls `if (!restoreCredentials.restore()) restoreCredentials.save()` (not gated on
+       `KEY_FIRST_TIME_USER`: Android's backup copies that setting to the new phone);
      - calls `restoreCredentials.save()` in `onSuccessfulOauthSign()` (and after any other sign-in path
        the app added);
      - calls `restoreCredentials.clear()` in `logOut()` before `KMPAuth.signOut()`.
@@ -175,7 +177,7 @@ From Google's guidance, for anyone changing the server:
 - Restore keys are stored apart from passkeys and never shown to users; user verification isn't required
   (Android reports `uv = false`).
 - Uninstalling the app or clearing its data deletes the key on the phone without telling the server: old
-  keys are capped (5 per user) and expire after a year unused.
+  keys are capped at 5 per user. They don't expire with time: a phone is often kept for years.
 - A key must stay valid on the server after the user signs out on the *old* phone, so the new phone can
   still use it. Signing out only deletes the key on that phone.
 - A user can have several phones: one key each.

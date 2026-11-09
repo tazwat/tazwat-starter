@@ -52,21 +52,21 @@ cmd_origin() {
 }
 
 cmd_check() {
-  local fail=0 cfg=shared/src/commonMain/kotlin/com/*/*/root/AppConfiguration.kt
+  local fail=0 cfg
+  cfg=$(find shared/src/commonMain -name AppConfiguration.kt | head -1) # any package depth
   local manifest=androidApp/src/main/AndroidManifest.xml env=../Web/functions/.env
   ok() { echo "✅ $1"; }
   bad() { echo "❌ $1"; fail=1; }
   warn() { echo "⚠️  $1"; }
 
-  # shellcheck disable=SC2086
-  local appconfig; appconfig=$(cat $cfg 2>/dev/null || true)
+  local appconfig; appconfig=$(cat "$cfg" 2>/dev/null || true)
   [[ -n "$appconfig" ]] || { bad "AppConfiguration.kt not found"; exit 1; }
   grep -q 'AUTH_SOCIAL_LOGIN_ENABLED = true' <<<"$appconfig" && ok "social sign-in on" || bad "AUTH_SOCIAL_LOGIN_ENABLED is not true (restore keys only cover Google/Apple users)"
   grep -q 'RESTORE_CREDENTIALS_ENABLED' <<<"$appconfig" || bad "RESTORE_CREDENTIALS_ENABLED missing from AppConfiguration.kt (sync the template)"
   grep -q 'RESTORE_CREDENTIALS_ENABLED = false' <<<"$appconfig" && bad "RESTORE_CREDENTIALS_ENABLED = false"
   local url; url=$(sed -n 's/.*const val CLOUD_FUNCTIONS_URL = "\(.*\)".*/\1/p' <<<"$appconfig")
   [[ -n "$url" ]] && ok "CLOUD_FUNCTIONS_URL = $url" || bad "CLOUD_FUNCTIONS_URL is blank"
-  ls shared/src/androidMain/kotlin/com/*/*/data/source/auth/RestoreCredentialsImpl.kt >/dev/null 2>&1 \
+  [[ -n "$(find shared/src/androidMain -name RestoreCredentialsImpl.kt)" ]] \
     && ok "RestoreCredentialsImpl present" || bad "RestoreCredentialsImpl.kt missing (sync the template)"
 
   if grep -q 'android:allowBackup="false"' "$manifest"; then

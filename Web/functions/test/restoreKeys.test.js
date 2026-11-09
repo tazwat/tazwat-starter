@@ -138,12 +138,11 @@ test("a disabled account is refused", async () => {
   await assert.rejects(signInWith(deps, "key-a"), { status: 403 });
 });
 
-test("a key unused for a year expires", async () => {
+test("a key still works years later (phones are kept for years)", async () => {
   const { deps, tick } = setup();
   await registerKey(deps, "alice", "key-a");
-  tick(rk.KEY_TTL_MS + 1);
-  await assert.rejects(signInWith(deps, "key-a"), { status: 404 });
-  assert.equal(await deps.store.getKey("key-a"), null);
+  tick(3 * 365 * 24 * 60 * 60 * 1000);
+  assert.deepEqual(await signInWith(deps, "key-a"), { token: "token-for-alice" });
 });
 
 test("config reads the origin list", () => {

@@ -53,6 +53,11 @@ class RestoreCredentialsImpl(
     // doesn't move to the new phone, so this note mustn't either, or the key would never be recreated.
     private val savedFor = File(this.context.noBackupFilesDir, "restore_key_uid")
 
+    // Set once this phone has had its answer (signed in, no key, key refused). Out of backups too, so it's
+    // missing on a new phone even when Android copied the app's settings there. Not set on a network error:
+    // the next launch tries again.
+    private val checked = File(this.context.noBackupFilesDir, "restore_key_checked")
+
     private val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P // Android 9+
     private val enabled = supported && AppConfiguration.RESTORE_CREDENTIALS_ENABLED && functionsUrl.isNotBlank()
 
@@ -76,28 +81,37 @@ class RestoreCredentialsImpl(
     }
 
     override suspend fun restore(): Boolean {
-        if (!enabled) return false
+        if (!enabled || checked.exists()) return false
         return logged("restore", false) {
             val current = Firebase.auth.currentUser
-            if (current != null && !current.isAnonymous) return false
+            if (current != null && !current.isAnonymous) return done(false) // nothing to restore
             val options = call("restoreKeySignInOptions").toString()
             val credential = try {
                 credentialManager.getCredential(context, GetCredentialRequest(listOf(GetRestoreCredentialOption(options)))).credential
             } catch (e: NoCredentialException) {
-                return false // no key: a real first install
+                return done(false) // no key: a real first install
             }
-            if (credential !is RestoreCredential) return false
+            if (credential !is RestoreCredential) return done(false)
             val result = try {
                 call("restoreKeySignIn", response = Json.parseToJsonElement(credential.authenticationResponseJson))
             } catch (e: RestoreKeyRefused) {
-                if (e.status == 404) clearKey() // the server dropped it (account deleted, expired): stop retrying
+                if (e.status == 404) { // the server dropped it (account deleted): stop retrying
+                    clearKey()
+                    done(false)
+                }
                 throw e
             }
             val token = result["token"]?.jsonPrimitive?.contentOrNull ?: error("No token in the sign-in answer")
+            // Replaces the guest account made at first launch, if any.
             val user = Firebase.auth.signInWithCustomToken(token).user ?: error("Custom token sign-in returned no user")
             savedFor.writeText(user.uid) // the key that came with the phone is this user's
-            true
+            done(true)
         }
+    }
+
+    private fun done(signedIn: Boolean): Boolean {
+        checked.createNewFile()
+        return signedIn
     }
 
     override suspend fun clear() {
